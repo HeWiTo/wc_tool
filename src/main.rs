@@ -1,4 +1,10 @@
-use std::{env, fs::File, io::Read};
+use std::{
+    env, 
+    fs::File, 
+    io::{
+        BufRead, BufReader, Read
+    }
+};
 
 fn main() {
     // Collect the command line arguments
@@ -10,13 +16,8 @@ fn main() {
         std::process::exit(1);
     }
 
-    // Check if the first argument is "-c"
-    if args[1] != "-c" {
-        eprintln!("Unsupport option: {}", args[1]);
-        std::process::exit(1);
-    }
-
     // Read the file name from the arguments
+    let option = &args[1];
     let filename = &args[2];
 
     // Open the file and read its content
@@ -28,12 +29,25 @@ fn main() {
         }
     };
 
-    let mut content = Vec::new();
-    if let Err(error) = file.read_to_end(&mut content) {
-        eprintln!("Error reading file {}: {}", filename, error);
-        std::process::exit(1);
+    // Check the given arguments (`-c` or `-l`) using match
+    match option.as_str() {
+        "-c" => {
+            let mut content = Vec::new();
+            if let Err(error) = file.read_to_end(&mut content) {
+                eprintln!("Error reading file {}: {}", filename, error);
+                std::process::exit(1);
+            }
+            println!("{} {}", content.len(), filename);
+        }
+        "-l" => {
+            let reader = BufReader::new(file);
+            let line_count = reader.lines().count();
+            println!("{} {}", line_count, filename);
+        }
+        _ => {
+            eprintln!("Unsupported option: {}", option);
+            std::process::exit(1);
+        }
     }
-
-    // Output the number of bytes in the file
-    println!("{} {}", content.len(), filename);
+    
 }
