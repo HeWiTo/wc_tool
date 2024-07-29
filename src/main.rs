@@ -57,6 +57,15 @@ fn main() {
                 .sum::<usize>();
             println!("{} {}", word_count, filename);
         }
+        "-m" => {
+            let mut content = String::new();
+            let mut reader = BufReader::new(file);
+            if let Err(error) = reader.read_to_string(&mut content) {
+                eprintln!("Error reading file {}: {}", filename, error);
+                std::process::exit(1);
+            }
+            println!("{} {}", content.chars().count(), filename);
+        }
         _ => {
             eprintln!("Unsupported option: {}", option);
             std::process::exit(1);
